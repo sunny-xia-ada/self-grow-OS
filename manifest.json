@@ -8,13 +8,13 @@
   "description": "Zanmang Loopy's smart cognitive mapping and review diary.",
   "icons": [
     {
-      "src": "loopy_icon.png",
+      "src": "loopy_icon_crown.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "loopy_icon.png",
+      "src": "loopy_icon_crown.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

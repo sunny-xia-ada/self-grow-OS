@@ -4,7 +4,7 @@
 > **"每一次循环都是成长，每一条记录都是宝藏。"**  
 > **"모든 루프는 성장이며, 모든 기록은 보물입니다."**
 
-![Loopy Icon](./loopy_icon.png)
+![Loopy Icon](./loopy_icon_crown.png)
 
 [中文](#-使用说明) | [English](#-user-guide) | [한국어](#-사용-가이드)
 
