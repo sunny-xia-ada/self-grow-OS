@@ -1,0 +1,17 @@
+{
+  "name": "Loopy 复盘 - XYLAB",
+  "short_name": "Loopy复盘",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff5f9",
+  "theme_color": "#f472b6",
+  "description": "Zanmang Loopy's smart cognitive mapping and review diary.",
+  "icons": [
+    {
+      "src": "loopy_app_icon_1775255773227.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

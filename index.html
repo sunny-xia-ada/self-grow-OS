@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Loopy复盘">
+<link rel="apple-touch-icon" href="loopy_app_icon_1775255773227.png">
+<link rel="manifest" href="manifest.json">
+<title>Loopy的复盘日记</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #fff5f9;
+    --card: #ffffff;
+    --primary: #f472b6;
+    --primary-dark: #ec4899;
+    --primary-light: #fce7f3;
+    --primary-lighter: #fdf2f8;
+    --accent: #fbbf24;
+    --accent-light: #fef3c7;
+    --lavender: #c4b5fd;
+    --lavender-light: #ede9fe;
+    --mint: #6ee7b7;
+    --mint-light: #d1fae5;
+    --peach: #fdba74;
+    --peach-light: #ffedd5;
+    --text: #4a2040;
+    --text-secondary: #9b7a8f;
+    --border: #f9d5e5;
+    --radius: 20px;
+    --shadow: 0 4px 20px rgba(244,114,182,0.12);
+    --shadow-strong: 0 8px 30px rgba(236,72,153,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    overscroll-behavior-y: none; /* Native app feel */
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(244,114,182,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0; pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 80px; left: -60px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(196,181,253,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0; pointer-events: none;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    background: linear-gradient(135deg, #f9a8d4, #f472b6, #e879a8);
+    color: white;
+    padding: 24px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -20px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .header-content {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .header-loopy { width: 52px; height: 52px; flex-shrink: 0; }
+  .header h1 { font-size: 22px; font-weight: 800; margin-bottom: 2px; text-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .header p { font-size: 13px; opacity: 0.9; font-weight: 600; }
+
+  /* ===== Tab Navigation ===== */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    padding: 10px 10px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    box-shadow: 0 2px 12px rgba(244,114,182,0.08);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 9px 4px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 14px;
+    text-align: center;
+    font-family: inherit;
+  }
+  .tab-btn.active {
+    color: white;
+    background: linear-gradient(135deg, #f9a8d4, var(--primary));
+    border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(244,114,182,0.3);
+    transform: scale(1.02);
+  }
+
+  /* ===== Tab Content ===== */
+  .tab-content { display: none; padding: 16px; position: relative; z-index: 1; }
+  .tab-content.active { display: block; }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid rgba(249,213,229,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-light), var(--primary), var(--lavender));
+    opacity: 0.6;
+  }
+  .card-title {
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--primary-dark);
+  }
+  .card-title .icon {
+    font-size: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    background: var(--primary-light);
+    border-radius: 10px;
+  }
+  .card-done::before { background: linear-gradient(90deg, #d1fae5, #6ee7b7, #34d399); }
+  .card-star::before { background: linear-gradient(90deg, #fef3c7, #fbbf24, #f59e0b); }
+  .card-warn::before { background: linear-gradient(90deg, #ede9fe, #c4b5fd, #a78bfa); }
+  .card-done .card-title .icon { background: var(--mint-light); }
+  .card-star .card-title .icon { background: var(--accent-light); }
+  .card-warn .card-title .icon { background: var(--lavender-light); }
+
+  /* ===== Form Elements ===== */
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+  .field-hint { font-size: 11px; color: #c9a0b8; margin-bottom: 6px; display: block; font-style: italic; }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: all 0.3s;
+    background: var(--primary-lighter);
+    resize: vertical;
+    color: var(--text);
+  }
+  textarea::placeholder, input::placeholder { color: #d4a0c0; }
+  textarea:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(244,114,182,0.12);
+  }
+  textarea { min-height: 60px; }
+
+  /* ===== Month Selector ===== */
+  .month-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .month-btn {
+    padding: 10px 4px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: white;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+  }
+  .month-btn.active {
+    background: linear-gradient(135deg, #f9a8d4, var(--primary));
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(244,114,182,0.25);
+    transform: scale(1.05);
+  }
+  .month-btn.has-data { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
+  .month-btn.has-data::after {
+    content: ''; display: block;
+    width: 6px; height: 6px;
+    background: var(--primary); border-radius: 50%; margin: 4px auto 0;
+  }
+  .month-btn.active.has-data::after { background: white; }
+
+  /* ===== Week Navigation ===== */
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+    background: white;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid rgba(249,213,229,0.5);
+  }
+  .week-nav-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: 16px; font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .week-nav-btn:active { transform: scale(0.9); background: var(--primary); color: white; }
+  .week-label { font-size: 16px; font-weight: 800; color: var(--primary-dark); }
+
+  /* ===== Day Tabs ===== */
+  .day-tabs {
+    display: flex; gap: 6px;
+    overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 13px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: all 0.25s;
+    white-space: nowrap; color: var(--text-secondary);
+  }
+  .day-tab.active {
+    background: linear-gradient(135deg, #f9a8d4, var(--primary));
+    color: white; border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(244,114,182,0.25);
+  }
+  .day-tab.has-data { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+
+  /* ===== Section Divider ===== */
+  .section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 20px 0;
+    position: relative;
+  }
+  .section-divider::after {
+    content: '~';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg);
+    padding: 0 12px;
+    color: var(--primary); font-size: 18px; font-weight: 800;
+  }
+
+  /* ===== Numbered Inputs ===== */
+  .numbered-input { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+  .numbered-input .num {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #e879a8);
+    color: white; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(244,114,182,0.3);
+  }
+  .numbered-input input { flex: 1; }
+
+  /* ===== Save Bar ===== */
+  .save-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 24px rgba(244,114,182,0.1);
+    z-index: 100;
+    display: flex; gap: 8px;
+  }
+  .save-btn {
+    flex: 1; height: 50px; border: none; border-radius: 16px;
+    background: linear-gradient(135deg, #f9a8d4, var(--primary-dark), #e879a8);
+    color: white; font-size: 16px; font-weight: 800;
+    font-family: inherit; cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 16px rgba(236,72,153,0.3);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .save-btn:active { transform: scale(0.97); }
+  .action-btn {
+    height: 50px; padding: 0 16px;
+    border: 2px solid var(--primary);
+    border-radius: 16px;
+    background: white;
+    color: var(--primary-dark);
+    font-size: 13px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .action-btn:active { background: var(--primary-light); transform: scale(0.97); }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: linear-gradient(135deg, var(--primary-dark), #d946a8);
+    color: white; padding: 16px 32px; border-radius: 20px;
+    font-size: 16px; font-weight: 700; z-index: 999;
+    opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    box-shadow: 0 8px 30px rgba(236,72,153,0.4);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+  /* ===== Review Section Titles ===== */
+  .review-section-title {
+    font-size: 14px; font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 2px dashed var(--primary-light);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .review-section-title::before {
+    content: ''; display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--primary); border-radius: 50%; flex-shrink: 0;
+  }
+  .sub-field { margin-bottom: 12px; }
+  .sub-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600; }
+
+  /* ===== Info Banner ===== */
+  .info-banner {
+    background: linear-gradient(135deg, var(--primary-light), #fce7f3, var(--lavender-light));
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    font-size: 13px; color: var(--primary-dark);
+    line-height: 1.6;
+    border: 1.5px solid rgba(244,114,182,0.2);
+    font-weight: 600;
+    position: relative; overflow: hidden;
+  }
+
+  /* ===== Animations ===== */
+  .fade-in { animation: fadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+  .float-anim { animation: float 3s ease-in-out infinite; }
+
+  .loopy-mascot { text-align: center; margin: 8px 0 12px; }
+
+  ::-webkit-scrollbar { width: 0; }
+
+  /* ===== Year Summary Styles ===== */
+  .year-nav {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    margin-bottom: 16px;
+  }
+  .year-nav-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--primary-light);
+    color: var(--primary-dark); font-size: 16px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .year-label { font-size: 20px; font-weight: 800; color: var(--primary-dark); }
+
+  .summary-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 14px 10px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1.5px solid rgba(249,213,229,0.5);
+  }
+  .stat-num {
+    font-size: 28px; font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-dark), #d946a8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-top: 2px; }
+
+  .month-summary-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid rgba(249,213,229,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .month-summary-card:active { transform: scale(0.98); }
+  .month-summary-card.empty { opacity: 0.5; }
+  .month-summary-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .month-summary-title {
+    font-size: 15px; font-weight: 800; color: var(--primary-dark);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .month-summary-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+    background: var(--primary-light); color: var(--primary-dark);
+  }
+  .month-summary-body {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+  }
+  .month-summary-body p { margin-bottom: 4px; }
+  .month-summary-body .label {
+    font-weight: 700; color: var(--primary);
+  }
+  .month-summary-empty {
+    font-size: 12px; color: #d4a0c0; font-style: italic;
+  }
+
+  /* Week summary mini cards */
+  .week-summary-row {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .week-mini-tag {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 8px;
+    background: var(--lavender-light); color: #7c3aed;
+  }
+
+  /* File sync indicator */
+  .sync-indicator {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    background: var(--mint-light);
+    border-radius: 12px;
+    font-size: 12px; font-weight: 600; color: #059669;
+    margin-bottom: 14px;
+  }
+  .sync-indicator.warn { background: var(--accent-light); color: #b45309; }
+
+  /* New Insights & Backup Indicator */
+  .card-insight { border-color: #fbbf24; background: #fffbeb; }
+  .card-insight .card-title { color: #b45309; }
+  .card-insight .card-title .icon { background: #fef3c7; }
+  
+  .backup-banner {
+    background: #fdf2f8;
+    border: 1px solid #f9a8d4;
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #be185d;
+    font-weight: 600;
+  }
+  .backup-banner .btn {
+    margin-left: auto;
+    padding: 4px 10px;
+    background: #ec4899;
+    color: white;
+    border-radius: 8px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  /* Comparison UI */
+  .comparison-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .comparison-col {
+    flex: 1;
+    min-width: 280px;
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1.5px solid var(--border);
+  }
+  .comparison-header {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--primary-light);
+  }
+  .comparison-item { margin-bottom: 12px; }
+  .comparison-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+  .comparison-text { font-size: 13px; margin-top: 4px; line-height: 1.5; }
+
+  /* Hidden file input */
+  #fileInput { display: none; }
+
+  /* Data management buttons */
+  .data-actions {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .data-btn {
+    padding: 10px 12px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: white;
+    font-size: 12px; font-weight: 700; font-family: inherit;
+    cursor: pointer; text-align: center;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+  }
+  .data-btn:active { transform: scale(0.96); background: var(--primary-light); }
+  .data-btn.primary-btn {
+    background: linear-gradient(135deg, #f9a8d4, var(--primary));
+    color: white; border-color: var(--primary);
+  }
+
+  .trend-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .trend-tag {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 10px;
+    background: var(--primary-lighter); color: var(--primary-dark);
+  }
+
+  /* Agent Specific */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 10px;
+  }
+  @media (min-width: 600px) {
+    .agent-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* OOTD Pro Styling */
+  .ootd-container {
+    position: relative;
+    margin-top: 10px;
+  }
+  .ootd-upload-area {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border: 2px dashed #d8b4fe;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fff5f9, #fdf2f8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .ootd-upload-area:hover {
+    border-color: var(--primary);
+    background: var(--primary-lighter);
+  }
+  .ootd-upload-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+  .ootd-plus {
+    font-size: 32px;
+    color: #d8b4fe;
+    background: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(216,180,254,0.3);
+    margin-bottom: 12px;
+    animation: breathe 3s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+  .ootd-label {
+    font-size: 13px;
+    color: #9b7a8f;
+    font-weight: 700;
+  }
+  .loopy-bubble {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: white;
+    border: 2px solid #f472b6;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ec4899;
+    box-shadow: 0 4px 15px rgba(244,114,182,0.25);
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
+  }
+  .loopy-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #f472b6;
+  }
+  .loopy-bubble.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-30px);
+  }
+  .ootd-feeling-group {
+    margin-top: 14px;
+  }
+
+  .yearly-ootd-mini {
+    width: 24px;
+    height: 32px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-left: 4px;
+    border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-content">
+    <svg class="header-loopy float-anim" viewBox="0 0 100 100" width="52" height="52">
+      <ellipse cx="50" cy="58" rx="32" ry="30" fill="#FFB6C1"/>
+      <ellipse cx="50" cy="64" rx="20" ry="18" fill="#FFF0F5"/>
+      <circle cx="50" cy="32" r="26" fill="#FFB6C1"/>
+      <circle cx="35" cy="38" r="7" fill="#FF91A4" opacity="0.5"/>
+      <circle cx="65" cy="38" r="7" fill="#FF91A4" opacity="0.5"/>
+      <circle cx="41" cy="30" r="4.5" fill="#3a2030"/>
+      <circle cx="59" cy="30" r="4.5" fill="#3a2030"/>
+      <circle cx="42.5" cy="28.5" r="1.8" fill="white"/>
+      <circle cx="60.5" cy="28.5" r="1.8" fill="white"/>
+      <ellipse cx="50" cy="35" rx="3" ry="2.2" fill="#e85d8a"/>
+      <path d="M46 38 Q50 43 54 38" stroke="#e85d8a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="30" cy="15" r="8" fill="#FFB6C1"/>
+      <circle cx="30" cy="15" r="5" fill="#FF91A4"/>
+      <circle cx="70" cy="15" r="8" fill="#FFB6C1"/>
+      <circle cx="70" cy="15" r="5" fill="#FF91A4"/>
+      <ellipse cx="22" cy="55" rx="8" ry="5" fill="#FFB6C1" transform="rotate(-20 22 55)"/>
+      <ellipse cx="78" cy="55" rx="8" ry="5" fill="#FFB6C1" transform="rotate(20 78 55)"/>
+      <ellipse cx="38" cy="86" rx="10" ry="5" fill="#FFB6C1"/>
+      <ellipse cx="62" cy="86" rx="10" ry="5" fill="#FFB6C1"/>
+      <circle cx="62" cy="10" r="4" fill="#FFE4E1"/>
+      <circle cx="58" cy="7" r="3.5" fill="#FFC0CB"/>
+      <circle cx="66" cy="7" r="3.5" fill="#FFC0CB"/>
+      <circle cx="58" cy="13" r="3.5" fill="#FFC0CB"/>
+      <circle cx="66" cy="13" r="3.5" fill="#FFC0CB"/>
+      <circle cx="62" cy="10" r="2.5" fill="#FFD700"/>
+    </svg>
+    <div>
+      <h1>Loopy的复盘日记</h1>
+      <p>记录每一天的小美好~</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Nav -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('daily')">日记录</button>
+  <button class="tab-btn" onclick="switchTab('weekly')">周复盘</button>
+  <button class="tab-btn" onclick="switchTab('monthly')">月度</button>
+  <button class="tab-btn" onclick="switchTab('yearly')">年度</button>
+  <button class="tab-btn" onclick="switchTab('agent')">Agent 实验室</button>
+</div>
+
+<!-- Hidden file input for import -->
+<input type="file" id="fileInput" accept=".json">
+
+<!-- ==================== 日记录 TAB ==================== -->
+<div id="tab-daily" class="tab-content active">
+  <div id="backupBanner" class="backup-banner">
+    <span>💡 已经 7 天没导出备份啦，建议备份一下~</span>
+    <div class="btn" onclick="exportInventory()">立即备份</div>
+  </div>
+  <div class="week-nav">
+    <button class="week-nav-btn" onclick="changeWeek(-1)">&lt;</button>
+    <span class="week-label" id="weekLabelReview">本周</span>
+    <button class="week-nav-btn" onclick="changeWeek(1)">&gt;</button>
+  </div>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="info-banner">每天写 3-5 条「发生了什么」，用符号标记类型哦~</div>
+  <div id="dailyForm" class="fade-in">
+    <div class="card card-done">
+      <div class="card-title"><span class="icon">&#10003;</span> 完成/推进</div>
+      <textarea id="daily_done" placeholder="今天完成或推进了什么~" rows="3"></textarea>
+    </div>
+    <div class="card card-star">
+      <div class="card-title"><span class="icon">&#9734;</span> 亮点/收获</div>
+      <textarea id="daily_star" placeholder="今天的亮点或收获~" rows="3"></textarea>
+    </div>
+    <div class="card card-insight">
+      <div class="card-title"><span class="icon">💡</span> 今日底层逻辑更新 (New Insights)</div>
+      <div class="field-group">
+        <textarea id="daily_insight" placeholder="捕捉思维深处的变化、底层规律的发现~" rows="3"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">思维标签 (Insight Tags)</div>
+        <input type="text" id="daily_insight_tag" placeholder="例如: #创业, #投资, #情绪管理">
+      </div>
+    </div>
+    <div class="card card-warn">
+      <div class="card-title"><span class="icon">!</span> 阻碍/情绪波动</div>
+      <textarea id="daily_warn" placeholder="遇到的困难、情绪波动~" rows="3"></textarea>
+    </div>
+    <div class="card" style="border-color: #d8b4fe;">
+      <div class="card-title"><span class="icon" style="background:#f3e8ff;">👗</span> 今日穿搭 (OOTD)</div>
+      
+      <div class="ootd-container">
+        <div id="loopyBubble" class="loopy-bubble">哇！今天很有 Jang Wonyoung 的感感哦~</div>
+        <div class="ootd-upload-area" onclick="triggerOOTDUpload()">
+          <div id="ootdPreviewContainer" style="display:none; width:100%; height:100%;">
+            <img id="ootdPreview" src="" alt="OOTD Preview">
+          </div>
+          <div id="ootdPlaceholder">
+            <div class="ootd-plus">+</div>
+            <div class="ootd-label">上传 OOTD 照片</div>
+          </div>
+        </div>
+        <input type="file" id="ootdInput" accept="image/*" capture="camera" style="display:none;" onchange="handleOOTDUpload(event)">
+      </div>
+
+      <div class="ootd-feeling-group">
+        <div class="field-label">穿搭心情 & 能量 (Feeling)</div>
+        <textarea id="daily_ootd_feeling" placeholder="记录这套穿搭带给你的情绪能量值~ (品牌, 风格, 感受)" rows="2"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 周复盘 TAB ==================== -->
+<div id="tab-weekly" class="tab-content">
+  <div class="week-nav">
+    <button class="week-nav-btn" onclick="changeWeek(-1)">&lt;</button>
+    <span class="week-label" id="weekLabelReview">本周</span>
+    <button class="week-nav-btn" onclick="changeWeek(1)">&gt;</button>
+  </div>
+  <div class="loopy-mascot">
+    <svg viewBox="0 0 200 60" width="180" height="54">
+      <rect x="40" y="2" rx="20" ry="20" width="158" height="40" fill="white" stroke="#f9a8d4" stroke-width="2"/>
+      <text x="119" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#ec4899" font-family="Nunito, sans-serif">周末花20-40分钟复盘吧~</text>
+      <polygon points="50,42 60,42 45,55" fill="white" stroke="#f9a8d4" stroke-width="2"/>
+      <rect x="40" y="38" width="22" height="6" fill="white"/>
+      <circle cx="22" cy="38" r="18" fill="#FFB6C1"/>
+      <circle cx="15" cy="34" r="3" fill="#3a2030"/>
+      <circle cx="29" cy="34" r="3" fill="#3a2030"/>
+      <circle cx="16" cy="33" r="1.2" fill="white"/>
+      <circle cx="30" cy="33" r="1.2" fill="white"/>
+      <ellipse cx="22" cy="39" rx="2" ry="1.5" fill="#e85d8a"/>
+      <path d="M19 41 Q22 44 25 41" stroke="#e85d8a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <circle cx="10" cy="24" r="5.5" fill="#FFB6C1"/>
+      <circle cx="10" cy="24" r="3.5" fill="#FF91A4"/>
+      <circle cx="34" cy="24" r="5.5" fill="#FFB6C1"/>
+      <circle cx="34" cy="24" r="3.5" fill="#FF91A4"/>
+    </svg>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-title"><span class="icon">&#128273;</span> 本周关键词</div>
+    <div class="field-group">
+      <input type="text" id="week_keywords" placeholder="3个关键词，用逗号分隔~">
+    </div>
+    <div class="card-title"><span class="icon">&#127919;</span> 三件最重要的事</div>
+    <div class="field-hint">尽量可验证哦</div>
+    <div class="numbered-input"><span class="num">1</span><input type="text" id="week_top1" placeholder="第一件重要的事"></div>
+    <div class="numbered-input"><span class="num">2</span><input type="text" id="week_top2" placeholder="第二件重要的事"></div>
+    <div class="numbered-input"><span class="num">3</span><input type="text" id="week_top3" placeholder="第三件重要的事"></div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9312; 自己的状态（事实 + 原因）</div>
+    <div class="sub-field"><div class="sub-label">&#129504; 头脑</div><textarea id="week_mind" placeholder="思维清晰度、专注力~" rows="2"></textarea></div>
+    <div class="sub-field"><div class="sub-label">&#128151; 内心</div><textarea id="week_heart" placeholder="主要情绪、压力感受~" rows="2"></textarea></div>
+    <div class="sub-field"><div class="sub-label">&#128170; 身体</div><textarea id="week_body" placeholder="体力、睡眠、健康~" rows="2"></textarea></div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9313; 内心最在意的事</div>
+    <div class="field-hint">我在担心/期待什么</div>
+    <textarea id="week_concern" placeholder="写下你最在意的事~" rows="3"></textarea>
+  </div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9314; 重要人物</div>
+    <div class="field-hint">互动/影响/反馈</div>
+    <textarea id="week_people" placeholder="本周重要的人际互动~" rows="3"></textarea>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9315; 兴趣所在</div>
+    <textarea id="week_interest" placeholder="什么让你感到兴奋和有能量~" rows="2"></textarea>
+  </div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9316; 优势和特长</div>
+    <textarea id="week_strength" placeholder="本周展现优势的具体事例~" rows="2"></textarea>
+  </div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9317; 思维模式和行为模式</div>
+    <textarea id="week_pattern" placeholder="发现的重复模式~" rows="2"></textarea>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9318; 信念/固有观念</div>
+    <textarea id="week_belief" placeholder="背后的信念或盲点~" rows="2"></textarea>
+  </div>
+
+  <div class="card fade-in">
+    <div class="review-section-title">&#9319; 想法和愿望</div>
+    <div class="sub-field"><div class="sub-label">&#127775; 我真正渴望的是</div><textarea id="week_desire" placeholder="内心最深的渴望~" rows="2"></textarea></div>
+    <div class="sub-field"><div class="sub-label">&#128150; 我想成为的人是</div><textarea id="week_become" placeholder="理想中的自己~" rows="2"></textarea></div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="card fade-in">
+    <div class="card-title"><span class="icon">&#129513;</span> 本周结论 (TL;DR)</div>
+    <div class="field-group">
+      <div class="field-label">一句话结论</div>
+      <textarea id="week_conclusion" placeholder="先写结论，尽量具体~" rows="2"></textarea>
+    </div>
+    <div class="field-group">
+      <div class="field-label">下周最重要的 3 个行动</div>
+      <div class="numbered-input"><span class="num">1</span><input type="text" id="week_action1" placeholder="行动一"></div>
+      <div class="numbered-input"><span class="num">2</span><input type="text" id="week_action2" placeholder="行动二"></div>
+      <div class="numbered-input"><span class="num">3</span><input type="text" id="week_action3" placeholder="行动三"></div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">我准备放下的 1 件事（减负）</div>
+      <textarea id="week_letgo" placeholder="放下什么可以让自己更轻松~" rows="2"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 月度回顾 TAB ==================== -->
+<div id="tab-monthly" class="tab-content">
+  <div class="info-banner">
+    &#128151; 内心：情绪、压力源、能量<br>
+    &#128170; 行动：关键投入（可量化）<br>
+    &#127942; 结果：可验证的产出<br>
+    &#128221; 备注：一句反思/经验
+  </div>
+  <div class="month-selector" id="monthSelector"></div>
+  <div id="monthlyForm" class="fade-in">
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128151;</span> 内心（情绪/能量）</div>
+      <textarea id="month_heart" placeholder="主要情绪、压力源、能量水平~" rows="3"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128170;</span> 行动（关键投入）</div>
+      <textarea id="month_action" placeholder="关键投入与习惯（可量化）~" rows="3"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127942;</span> 结果（可验证）</div>
+      <textarea id="month_result" placeholder="可验证的产出或变化~" rows="3"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128221;</span> 备注（一句话）</div>
+      <textarea id="month_note" placeholder="一句反思或一句经验~" rows="2"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 年度总结 TAB ==================== -->
+<div id="tab-yearly" class="tab-content">
+  <div class="year-nav">
+    <button class="year-nav-btn" onclick="changeYear(-1)">&lt;</button>
+    <span class="year-label" id="yearLabel">2026</span>
+    <button class="year-nav-btn" onclick="changeYear(1)">&gt;</button>
+  </div>
+
+  <!-- Loopy with yearly message -->
+  <div class="loopy-mascot">
+    <svg viewBox="0 0 220 60" width="200" height="54">
+      <rect x="40" y="2" rx="20" ry="20" width="178" height="40" fill="white" stroke="#f9a8d4" stroke-width="2"/>
+      <text x="129" y="28" text-anchor="middle" font-size="12" font-weight="700" fill="#ec4899" font-family="Nunito, sans-serif">来看看这一年的成长轨迹吧~</text>
+      <polygon points="50,42 60,42 45,55" fill="white" stroke="#f9a8d4" stroke-width="2"/>
+      <rect x="40" y="38" width="22" height="6" fill="white"/>
+      <circle cx="22" cy="38" r="18" fill="#FFB6C1"/>
+      <circle cx="15" cy="34" r="3" fill="#3a2030"/>
+      <circle cx="29" cy="34" r="3" fill="#3a2030"/>
+      <circle cx="16" cy="33" r="1.2" fill="white"/>
+      <circle cx="30" cy="33" r="1.2" fill="white"/>
+      <ellipse cx="22" cy="39" rx="2" ry="1.5" fill="#e85d8a"/>
+      <path d="M19 41 Q22 44 25 41" stroke="#e85d8a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <circle cx="10" cy="24" r="5.5" fill="#FFB6C1"/>
+      <circle cx="10" cy="24" r="3.5" fill="#FF91A4"/>
+      <circle cx="34" cy="24" r="5.5" fill="#FFB6C1"/>
+      <circle cx="34" cy="24" r="3.5" fill="#FF91A4"/>
+    </svg>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="summary-stats" id="yearStats"></div>
+
+  <!-- Data management -->
+  <div class="data-actions">
+    <button class="data-btn primary-btn" onclick="exportInventory()">&#128230; 导出存档</button>
+    <button class="data-btn" onclick="document.getElementById('fileInput').click()">&#128229; 导入存档</button>
+  </div>
+
+  <div id="syncStatus"></div>
+
+  <!-- Growth Map Tabs -->
+  <div class="day-tabs" style="justify-content: center; margin-top: 10px;">
+    <button class="day-tab active" id="btn-year-months" onclick="switchYearlySubTab('months')">📅 每月回顾</button>
+    <button class="day-tab" id="btn-year-trends" onclick="switchYearlySubTab('trends')">📈 思维趋势</button>
+    <button class="day-tab" id="btn-year-compare" onclick="switchYearlySubTab('compare')">🔄 月度对比</button>
+  </div>
+
+  <!-- Monthly breakdown -->
+  <div id="yearMonthList"></div>
+  
+  <!-- Trend Analysis -->
+  <div id="yearTrendSection" style="display:none;" class="fade-in">
+    <div class="card">
+      <div class="card-title"><span class="icon">💡</span> 认知进化清单</div>
+      <div id="yearInsightTimeline" style="font-size:13px; color:var(--text-secondary);"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span> 年度高频思维关键词</div>
+      <div id="yearKeywordTrend" class="trend-list"></div>
+    </div>
+  </div>
+
+  <!-- Comparison Module -->
+  <div id="yearCompareSection" style="display:none;" class="fade-in">
+    <div class="card">
+      <div class="card-title"><span class="icon">🔄</span> 月度状态对比</div>
+      <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <select id="compareMonth1" class="tab-btn" style="width:100%; border:2.5px solid var(--border);" onchange="updateComparison()"></select>
+        <select id="compareMonth2" class="tab-btn" style="width:100%; border:2.5px solid var(--border);" onchange="updateComparison()"></select>
+      </div>
+      <div id="comparisonResult" class="comparison-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">👗</span> 高能量 OOTD 墙</div>
+      <div id="yearOotdWall" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AGENT 实验室 TAB ==================== -->
+<div id="tab-agent" class="tab-content">
+  <div class="info-banner" style="background: linear-gradient(135deg, #f3e8ff, #faf5ff);">
+    &#129504; <b>Agent Lab v1.0</b><br>
+    由 XYLAB 驱动的 AI 洞察引擎，解析你的复盘数据。
+  </div>
+
+  <!-- LLM Settings Card -->
+  <div class="card" style="border-style: dashed; background: #fafafa;">
+    <div class="card-title" onclick="toggleSettings()" style="cursor:pointer;">
+      <span class="icon">&#9881;</span> AI 配置 
+      <span style="font-size:10px; margin-left:auto; opacity:0.5;" id="settingsToggleIcon">展开 ▼</span>
+    </div>
+    <div id="agentSettings" style="display:none; margin-top:10px;">
+      <div class="field-group">
+        <div class="field-label">API Endpoint (e.g. https://api.openai.com/v1)</div>
+        <input type="text" id="ai_endpoint" placeholder="https://..." value="https://api.openai.com/v1">
+      </div>
+      <div class="field-group">
+        <div class="field-label">API Key</div>
+        <input type="password" id="ai_key" placeholder="sk-...">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Model Name</div>
+        <input type="text" id="ai_model" placeholder="gpt-4o" value="gpt-4o">
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Selection -->
+  <div class="agent-grid">
+    <!-- Loopy Agent -->
+    <div class="card fade-in" style="border-left: 5px solid #f472b6;">
+      <div class="card-title"><span class="icon">🧠</span> Loopy 性格分析</div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">提取情绪模式、压力源及成长趋势。生成“Loopy风格”月度报告。</p>
+      <div class="month-selector" id="agentMonthSelector" style="margin-bottom:10px;"></div>
+      <button class="save-btn" style="background:linear-gradient(135deg, #f472b6, #db2777)" onclick="runAgent('loopy')">✨ 开始分析</button>
+    </div>
+
+    <!-- Smart Layout Agent -->
+    <div class="card fade-in" style="border-left: 5px solid #60a5fa;">
+      <div class="card-title"><span class="icon">📱</span> Smart Layout 分发</div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">将“亮点/收获”转化为高美感的社交文案 (XHS/朋友圈)。</p>
+      <button class="save-btn" style="background:linear-gradient(135deg, #60a5fa, #2563eb)" onclick="runAgent('layout')">📸 生成文案</button>
+    </div>
+
+    <!-- Outfit Agent -->
+    <div class="card fade-in" style="border-left: 5px solid #8b5cf6;">
+      <div class="card-title"><span class="icon">👗</span> 穿搭高能量分析</div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">追踪“穿搭”与“心理状态”的相关性，优化衣橱资产。</p>
+      <button class="save-btn" style="background:linear-gradient(135deg, #8b5cf6, #7c3aed)" onclick="runAgent('outfit')">💎 衣橱审计</button>
+    </div>
+  </div>
+
+  <!-- Agent Output -->
+  <div id="agentResult" class="card fade-in" style="display:none; min-height:200px; border-color:var(--primary);">
+    <div class="card-title"><span class="icon" id="resultIcon">✨</span> 分析结果</div>
+    <div id="resultContent" style="font-size:14px; white-space: pre-wrap; line-height:1.7;"></div>
+    <div style="margin-top:20px; display:flex; gap:10px;">
+      <button class="action-btn" onclick="copyResult()">📋 复制内容</button>
+      <button class="action-btn" onclick="document.getElementById('agentResult').style.display='none'">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Extra Mobile Spacing -->
+<div style="height: 40px;"></div>
+
+<!-- Save Bar -->
+<div class="save-bar">
+  <button class="save-btn" onclick="saveCurrentData()">&#128150; 保存</button>
+  <button class="action-btn" onclick="exportInventory()">&#128230; 导出</button>
+  <button class="action-btn" onclick="document.getElementById('fileInput').click()">&#128229;</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== PWA Service Worker Registration =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[PWA] Service Worker Registered'))
+      .catch(err => console.log('[PWA] Service Worker Failed', err));
+  });
+}
+
+// ===== State =====
+let currentTab = 'daily';
+let currentWeekOffset = 0;
+let currentDay = new Date().getDay() || 7;
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+const DATA_VERSION = '4.0';
+
+// ===== Storage Layer: IndexedDB (Native App-grade Storage) =====
+const DB_NAME = 'LoopyReviewDB';
+const STORE_NAME = 'entries';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = (e) => resolve(e.target.result);
+    request.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function dbGet(key) {
+  const db = await openDB();
+  return new Promise((resolve) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const request = transaction.objectStore(STORE_NAME).get(key);
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+
+async function dbSet(key, value) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const request = transaction.objectStore(STORE_NAME).put(value, key);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function getYearlyData(year = currentYear) {
+  const key = `fupan_${year}_data`;
+  const data = await dbGet(key) || {};
+  if (!data._meta) {
+    data._meta = {
+      version: DATA_VERSION,
+      growth_timeline: [],
+      _index: {},
+      last_updated: Date.now()
+    };
+  }
+  return data;
+}
+
+async function safeSaveData(year, data) {
+  const key = `fupan_${year}_data`;
+  data._meta.last_updated = Date.now();
+  // Indexing entries
+  if (!data._meta._index) data._meta._index = {};
+  for (const k of Object.keys(data)) {
+    if (!k.startsWith('_')) data._meta._index[k] = true;
+  }
+  await dbSet(key, data);
+  return true;
+}
+
+// Conflict resolution placeholder
+async function syncToCloudPlaceholder() {
+  console.log("[Sync] Future Cloud Integration Site");
+  // Placeholder for GitHub Gist / XYLAB Cloud Sync
+}
+
+async function migrateLegacyData() {
+  const LEGACY_V2 = 'fupan_data_v2';
+  const legacyV2 = localStorage.getItem(LEGACY_V2);
+  
+  // Migration logic for v2 and partitioned v3
+  const yearsToMigrate = [currentYear, currentYear-1, currentYear+1];
+  
+  for (const year of yearsToMigrate) {
+    const localKey = `fupan_${year}_data`;
+    const localVal = localStorage.getItem(localKey);
+    if (localVal) {
+      console.log(`[Storage] Migrating ${localKey} to IndexedDB...`);
+      await dbSet(localKey, JSON.parse(localVal));
+      localStorage.setItem(`${localKey}_migrated`, localVal);
+      localStorage.removeItem(localKey);
+    }
+  }
+
+  if (legacyV2) {
+    console.log("[Storage] Migrating legacy v2 to IndexedDB...");
+    const data = JSON.parse(legacyV2);
+    // Porting would be complex here, usually v3 was already partitioned
+    // We already have v3 partitioned logic in index.html v3.0
+    localStorage.setItem(`${LEGACY_V2}_migrated`, legacyV2);
+    localStorage.removeItem(LEGACY_V2);
+  }
+}
+
+// ===== Inventory File (JSON export/import) =====
+async function exportInventory() {
+  const allData = { _meta: { exportedAt: new Date().toISOString(), type: 'FULL_DB_EXPORT' } };
+  const years = [currentYear-1, currentYear, currentYear+1];
+  for (const y of years) {
+    const data = await dbGet(`fupan_${y}_data`);
+    if (data) allData[`fupan_${y}_data`] = data;
+  }
+
+  const text = JSON.stringify(allData, null, 2);
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `loopy复盘全量存档_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Update last export track
+  const d = await getYearlyData();
+  d._lastExport = new Date().toISOString();
+  await safeSaveData(currentYear, d);
+  showToast('存档已导出至文件~');
+}
+
+async function importInventory(file) {
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      for (const key of Object.keys(imported)) {
+        if (key.startsWith('fupan_')) {
+          await dbSet(key, imported[key]);
+        }
+      }
+      showToast(`导入成功，数据库已更新~`);
+      await switchTab(currentTab);
+    } catch(err) { showToast('文件格式不对哦~'); }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  if (e.target.files[0]) {
+    importInventory(e.target.files[0]);
+    e.target.value = '';
+  }
+});
+
+function importInventory(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (typeof imported !== 'object') throw new Error('Invalid');
+
+      // Merge with existing data
+      const existing = getAllData();
+      let newCount = 0;
+      let updateCount = 0;
+
+      for (const key of Object.keys(imported)) {
+        if (key.startsWith('_')) continue;
+        if (!existing[key]) {
+          newCount++;
+        } else {
+          updateCount++;
+        }
+        existing[key] = imported[key];
+      }
+
+      existing._lastImport = new Date().toISOString();
+      saveAllData(existing);
+
+      showToast(`导入成功~ 新增${newCount}条，更新${updateCount}条`);
+
+      // Refresh current view
+      switchTab(currentTab);
+    } catch(err) {
+      showToast('文件格式不对哦~');
+    }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  if (e.target.files[0]) {
+    importInventory(e.target.files[0]);
+    e.target.value = '';
+  }
+});
+
+// ===== Week Helpers =====
+function getWeekId(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  return `${d.getFullYear()}-W${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+function getWeekLabel(offset) {
+  if (offset === 0) return '~ 本周 ~';
+  if (offset === -1) return '~ 上周 ~';
+  if (offset === 1) return '~ 下周 ~';
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  const endD = new Date(d);
+  endD.setDate(endD.getDate() + 6);
+  return `${d.getMonth()+1}/${d.getDate()} - ${endD.getMonth()+1}/${endD.getDate()}`;
+}
+function getWeekDates(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const dd = new Date(d);
+    dd.setDate(dd.getDate() + i);
+    dates.push(dd);
+  }
+  return dates;
+}
+
+// ===== Tab Switching =====
+async function switchTab(tab) {
+  currentTab = tab;
+  const tabNames = ['daily', 'weekly', 'monthly', 'yearly', 'agent'];
+  const btns = document.querySelectorAll('.tab-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.toggle('active', tabNames[i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  if (tab === 'daily') await renderDailyTab();
+  else if (tab === 'weekly') await renderWeeklyTab();
+  else if (tab === 'monthly') await renderMonthlyTab();
+  else if (tab === 'yearly') await renderYearlyTab();
+  else if (tab === 'agent') await renderAgentTab();
+}
+
+async function changeWeek(dir) {
+  currentWeekOffset += dir;
+  if (currentTab === 'daily') await renderDailyTab();
+  else if (currentTab === 'weekly') await renderWeeklyTab();
+}
+
+async function changeYear(dir) {
+  currentYear += dir;
+  await renderYearlyTab();
+}
+
+// ===== Daily Tab Logic =====
+async function renderDailyTab() {
+  const data = await getYearlyData();
+  const weekId = getWeekId(currentWeekOffset);
+  const dates = getWeekDates(currentWeekOffset);
+  
+  document.getElementById('weekLabelReview').textContent = getWeekLabel(currentWeekOffset);
+  
+  // Backup reminder logic
+  const backupBanner = document.getElementById('backupBanner');
+  if (data._lastExport) {
+    const daysSince = Math.floor((Date.now() - new Date(data._lastExport).getTime()) / (1000*60*60*24));
+    backupBanner.style.display = daysSince >= 7 ? 'flex' : 'none';
+  } else {
+    backupBanner.style.display = 'flex';
+  }
+
+  const tabsEl = document.getElementById('dayTabs');
+  tabsEl.innerHTML = '';
+  dates.forEach((date, i) => {
+    const dayNames = ['周一','周二','周三','周四','周五','周六','周日'];
+    const dayNum = i + 1;
+    const dateStr = `${date.getMonth()+1}/${date.getDate()}`;
+    const dayKey = `daily_${weekId}_${dayNum}`;
+    const dayData = data[dayKey] || {};
+    const hasData = dayData.done || dayData.star || dayData.warn || dayData.daily_insight || dayData.ootd_img;
+    const btn = document.createElement('button');
+    btn.className = 'day-tab' + (dayNum === currentDay ? ' active' : '') + (hasData ? ' has-data' : '');
+    btn.textContent = `${dayNames[i]} ${dateStr}`;
+    btn.onclick = async () => { currentDay = dayNum; await renderDailyTab(); };
+    tabsEl.appendChild(btn);
+  });
+  
+  const dayKey = `daily_${weekId}_${currentDay}`;
+  const dayData = data[dayKey] || {};
+  document.getElementById('daily_done').value = dayData.done || '';
+  document.getElementById('daily_star').value = dayData.star || '';
+  document.getElementById('daily_warn').value = dayData.warn || '';
+  document.getElementById('daily_insight').value = dayData.daily_insight || '';
+  document.getElementById('daily_insight_tag').value = dayData.insight_tag || '';
+  
+  // OOTD Render
+  const ootdImg = dayData.ootd_img;
+  const preview = document.getElementById('ootdPreview');
+  const previewContainer = document.getElementById('ootdPreviewContainer');
+  const placeholder = document.getElementById('ootdPlaceholder');
+  if (ootdImg) {
+    preview.src = ootdImg;
+    previewContainer.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    preview.src = '';
+    previewContainer.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
+  document.getElementById('daily_ootd_feeling').value = dayData.ootd_feeling || '';
+
+  const activeTab = tabsEl.querySelector('.day-tab.active');
+  if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+// ===== Weekly Tab =====
+const weeklyFields = [
+  'week_keywords','week_top1','week_top2','week_top3',
+  'week_mind','week_heart','week_body','week_concern','week_people',
+  'week_interest','week_strength','week_pattern',
+  'week_belief','week_desire','week_become',
+  'week_conclusion','week_action1','week_action2','week_action3','week_letgo'
+];
+
+function renderWeeklyTab() {
+  document.getElementById('weekLabelReview').textContent = getWeekLabel(currentWeekOffset);
+  getYearlyData().then(data => {
+    const weekId = getWeekId(currentWeekOffset);
+    const weekData = data[`weekly_${weekId}`] || {};
+    weeklyFields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el) el.value = weekData[f] || '';
+    });
+  });
+}
+
+// ===== Monthly Tab =====
+const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const monthlyFields = ['month_heart','month_action','month_result','month_note'];
+
+async function renderMonthlyTab() {
+  const data = await getYearlyData();
+  const year = new Date().getFullYear();
+  const selector = document.getElementById('monthSelector');
+  selector.innerHTML = '';
+  monthNames.forEach((name, i) => {
+    const monthKey = `monthly_${year}_${i}`;
+    const hasData = data[monthKey] && Object.values(data[monthKey]).some(v => v);
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (i === currentMonth ? ' active' : '') + (hasData ? ' has-data' : '');
+    btn.textContent = name;
+    btn.onclick = async () => { currentMonth = i; await renderMonthlyTab(); };
+    selector.appendChild(btn);
+  });
+  const monthKey = `monthly_${year}_${currentMonth}`;
+  const monthData = data[monthKey] || {};
+  monthlyFields.forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = monthData[f] || '';
+  });
+}
+
+// ===== Yearly Summary Tab Overhaul =====
+let currentYearlySubTab = 'months';
+
+async function renderYearlyTab() {
+  document.getElementById('yearLabel').textContent = `${currentYear} 年`;
+  const data = await getYearlyData(currentYear);
+
+  // Visibility toggle
+  document.getElementById('yearMonthList').style.display = currentYearlySubTab === 'months' ? 'block' : 'none';
+  document.getElementById('yearTrendSection').style.display = currentYearlySubTab === 'trends' ? 'block' : 'none';
+  document.getElementById('yearCompareSection').style.display = currentYearlySubTab === 'compare' ? 'block' : 'none';
+
+  // Count stats
+  let dailyCount = 0, weeklyCount = 0, monthlyCount = 0;
+  let allInsights = []; // [{month, text}]
+  let allKeywords = {}; // {word: count}
+  let ootdStars = []; // [{img, date, stars}]
+
+  for (const key of Object.keys(data)) {
+    if (key.startsWith('daily_')) {
+      const d = data[key];
+      if (d && (d.done || d.star || d.warn || d.daily_insight)) dailyCount++;
+      if (d.daily_insight) {
+        const mCatch = key.match(/-W(\d{2})/);
+        const m = mCatch ? mCatch[1] : '01';
+        allInsights.push({ month: parseInt(m), text: d.daily_insight, tag: d.insight_tag });
+      }
+      if (d.ootd_img && d.star) {
+        ootdStars.push({ img: d.ootd_img, star: truncate(d.star, 30), key: key });
+      }
+    }
+    if (key.startsWith('weekly_')) {
+      const d = data[key];
+      if (d && Object.values(d).some(v => v)) {
+        weeklyCount++;
+        if (d.week_keywords) {
+          d.week_keywords.split(/[,，、]/).forEach(w => {
+            w = w.trim();
+            if (w) allKeywords[w] = (allKeywords[w] || 0) + 1;
+          });
+        }
+      }
+    }
+    if (key.startsWith(`monthly_${currentYear}_`)) {
+      const d = data[key];
+      if (d && Object.values(d).some(v => v)) monthlyCount++;
+    }
+  }
+
+  // Render stats
+  document.getElementById('yearStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${dailyCount}</div><div class="stat-label">日记录</div></div>
+    <div class="stat-card"><div class="stat-num">${weeklyCount}</div><div class="stat-label">周复盘</div></div>
+    <div class="stat-card"><div class="stat-num">${monthlyCount}</div><div class="stat-label">月度回顾</div></div>
+  `;
+
+  // Render Backup Status
+  const lastExport = data._lastExport;
+  const syncEl = document.getElementById('syncStatus');
+  if (lastExport) {
+    const exportDate = new Date(lastExport);
+    const daysSince = Math.floor((Date.now() - exportDate.getTime()) / (1000*60*60*24));
+    syncEl.innerHTML = daysSince >= 7 
+      ? `<div class="sync-indicator warn">&#9888;&#65039; 距离上次存档已 ${daysSince} 天，建议立即备份</div>`
+      : `<div class="sync-indicator">&#10003; 上次存档：${exportDate.toLocaleDateString('zh-CN')}</div>`;
+  } else {
+    syncEl.innerHTML = `<div class="sync-indicator warn">&#128161; 保护数据安全，请进行首次导入/导出</div>`;
+  }
+
+  if (currentYearlySubTab === 'months') {
+    renderYearMonthlyList(data);
+  } else if (currentYearlySubTab === 'trends') {
+    renderYearTrends(allInsights, allKeywords);
+  } else if (currentYearlySubTab === 'compare') {
+    renderYearComparison(data, ootdStars);
+  }
+}
+
+async function switchYearlySubTab(sub) {
+  currentYearlySubTab = sub;
+  const subs = ['months', 'trends', 'compare'];
+  subs.forEach(s => {
+    document.getElementById(`btn-year-${s}`).classList.toggle('active', s === sub);
+  });
+  await renderYearlyTab();
+}
+
+function renderYearMonthlyList(data) {
+  const listEl = document.getElementById('yearMonthList');
+  let html = '';
+  for (let m = 11; m >= 0; m--) {
+    const monthKey = `monthly_${currentYear}_${m}`;
+    const mData = data[monthKey] || {};
+    const hasMonthData = Object.values(mData).some(v => v);
+    const weekKeys = Object.keys(data).filter(k => k.startsWith(`weekly_${currentYear}-W${String(m+1).padStart(2,'0')}`));
+    const dailyKeys = Object.keys(data).filter(k => k.startsWith(`daily_${currentYear}-W${String(m+1).padStart(2,'0')}`));
+    const filledDays = dailyKeys.filter(k => data[k] && (data[k].done || data[k].star || data[k].warn || data[k].ootd_img));
+    const filledWeeks = weekKeys.filter(k => data[k] && Object.values(data[k]).some(v => v));
+    
+    if (!hasMonthData && filledWeeks.length === 0 && filledDays.length === 0) continue;
+
+    html += `<div class="month-summary-card fade-in" onclick="currentMonth=${m}; switchTab('monthly');">
+      <div class="month-summary-header">
+        <div class="month-summary-title">${monthNames[m]}</div>
+        <div style="display:flex;gap:4px;">
+           <span class="month-summary-badge">${filledDays.length}日</span>
+           <span class="month-summary-badge">${filledWeeks.length}周</span>
+        </div>
+      </div>
+      <div class="month-summary-body">
+        ${mData.month_note ? `<p><span class="label">核心：</span>${truncate(mData.month_note, 60)}</p>` : ''}
+      </div></div>`;
+  }
+  listEl.innerHTML = html || '<div class="month-summary-empty" style="text-align:center; padding:40px;">今年还没有记录哦~</div>';
+}
+
+function renderYearTrends(insights, keywords) {
+  // Insights timeline
+  const timelineEl = document.getElementById('yearInsightTimeline');
+  if (insights.length === 0) {
+    timelineEl.innerHTML = '<div style="opacity:0.5; padding:20px; text-align:center;">还没有记录过“今日新认知”哦~</div>';
+  } else {
+    // Sort by month
+    insights.sort((a,b) => b.month - a.month);
+    timelineEl.innerHTML = insights.slice(0, 15).map(i => `
+      <div style="margin-bottom:12px; padding-left:12px; border-left:2px solid #fbbf24;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:800; color:#b45309; font-size:11px;">${monthNames[i.month-1]} · 认知跃迁</span>
+          ${i.tag ? `<span class="trend-tag" style="font-size:9px; background:#fef3c7; color:#92400e;">${i.tag}</span>` : ''}
+        </div>
+        <div style="margin-top:2px;">${i.text}</div>
+      </div>
+    `).join('');
+  }
+
+  // Keywords trend
+  const kwEl = document.getElementById('yearKeywordTrend');
+  const sortedKw = Object.entries(keywords).sort((a,b) => b[1] - a[1]).slice(0, 20);
+  if (sortedKw.length === 0) {
+    kwEl.innerHTML = '<div style="opacity:0.5; padding:20px;">暂无高频词</div>';
+  } else {
+    kwEl.innerHTML = sortedKw.map(([word, count]) => `
+      <span class="trend-tag">${word} <small style="opacity:0.6; font-weight:400;">(${count})</small></span>
+    `).join('');
+  }
+}
+
+function renderYearComparison(data, ootdStars) {
+  const m1 = document.getElementById('compareMonth1');
+  const m2 = document.getElementById('compareMonth2');
+  
+  if (m1.options.length === 0) {
+    monthNames.forEach((n, i) => {
+      m1.add(new Option(n, i));
+      m2.add(new Option(n, i));
+    });
+    m1.value = 0; m2.value = Math.min(11, new Date().getMonth());
+  }
+
+  updateComparison();
+
+  // OOTD Wall - Top Stars
+  const wallEl = document.getElementById('yearOotdWall');
+  if (ootdStars.length === 0) {
+    wallEl.innerHTML = '<div style="grid-column: span 3; opacity:0.5; text-align:center; padding:20px;">记录 OOTD 后会在这里展示“高能量状态”瞬间</div>';
+  } else {
+    // Pick unique OOTDs or top few
+    wallEl.innerHTML = ootdStars.slice(-9).map(item => `
+      <div style="text-align:center;">
+        <img src="${item.img}" style="width:100%; aspect-ratio:3/4; border-radius:10px; object-fit:cover; border:1px solid #eee;">
+        <div style="font-size:9px; color:var(--text-secondary); margin-top:4px; height:24px; overflow:hidden;">${item.star}</div>
+      </div>
+    `).join('');
+  }
+}
+
+async function updateComparison() {
+  const data = await getYearlyData(currentYear);
+  const idx1 = document.getElementById('compareMonth1').value;
+  const idx2 = document.getElementById('compareMonth2').value;
+  const resEl = document.getElementById('comparisonResult');
+
+  const getWeekData = (monthIdx) => {
+    const prefix = `weekly_${currentYear}-W${String(parseInt(monthIdx)+1).padStart(2,'0')}`;
+    const key = Object.keys(data).find(k => k.startsWith(prefix));
+    return data[key] || {};
+  };
+
+  const w1 = getWeekData(idx1);
+  const w2 = getWeekData(idx2);
+
+  const fields = [
+    { label: '🌟 真正渴望', key: 'week_desire' },
+    { label: '👤 理想自我', key: 'week_become' },
+    { label: '🧠 思维模式', key: 'week_pattern' }
+  ];
+
+  resEl.innerHTML = `
+    <div class="comparison-col" style="min-width:45%;">
+      <div class="comparison-header">${monthNames[idx1]}</div>
+      ${fields.map(f => `
+        <div class="comparison-item">
+          <div class="comparison-label">${f.label}</div>
+          <div class="comparison-text">${w1[f.key] || '-'}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="comparison-col" style="min-width:45%;">
+      <div class="comparison-header">${monthNames[idx2]}</div>
+      ${fields.map(f => `
+        <div class="comparison-item">
+          <div class="comparison-label">${f.label}</div>
+          <div class="comparison-text">${w2[f.key] || '-'}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function truncate(str, len) {
+  if (!str) return '';
+  str = str.replace(/\n/g, ' ');
+  return str.length > len ? str.slice(0, len) + '...' : str;
+}
+
+// ===== Save =====
+async function saveCurrentData() {
+  const data = await getYearlyData(currentYear);
+  const weekId = getWeekId(currentWeekOffset);
+
+  if (currentTab === 'daily') {
+    const existingDay = data[`daily_${weekId}_${currentDay}`] || {};
+    data[`daily_${weekId}_${currentDay}`] = {
+      done: document.getElementById('daily_done').value,
+      star: document.getElementById('daily_star').value,
+      warn: document.getElementById('daily_warn').value,
+      daily_insight: document.getElementById('daily_insight').value,
+      insight_tag: document.getElementById('daily_insight_tag').value,
+      ootd_img: document.getElementById('ootdPreview').src.startsWith('data:') ? document.getElementById('ootdPreview').src : (existingDay.ootd_img || ''),
+      ootd_feeling: document.getElementById('daily_ootd_feeling').value,
+      ootd_timestamp: new Date().toISOString(),
+      created_at: existingDay.created_at || new Date().toISOString()
+    };
+  } else if (currentTab === 'weekly') {
+    const weekData = {};
+    weeklyFields.forEach(f => { const el = document.getElementById(f); if (el) weekData[f] = el.value; });
+    data[`weekly_${weekId}`] = weekData;
+    
+    // Growth Timeline Snapshot
+    if (weekData.week_mind || weekData.week_belief) {
+      if (!data._meta.growth_timeline) data._meta.growth_timeline = [];
+      const snapshot = {
+        weekId: weekId,
+        date: new Date().toISOString().slice(0,10),
+        mind: weekData.week_mind,
+        belief: weekData.week_belief
+      };
+      const idx = data._meta.growth_timeline.findIndex(s => s.weekId === weekId);
+      if (idx > -1) data._meta.growth_timeline[idx] = snapshot;
+      else data._meta.growth_timeline.push(snapshot);
+    }
+  } else if (currentTab === 'monthly') {
+    const monthData = {};
+    monthlyFields.forEach(f => { const el = document.getElementById(f); if (el) monthData[f] = el.value; });
+    data[`monthly_${currentYear}_${currentMonth}`] = monthData;
+  }
+
+  data._lastModified = new Date().toISOString();
+  await safeSaveData(currentYear, data);
+  showToast('已安全保存啦~');
+
+  if (currentTab === 'daily') await renderDailyTab();
+  else if (currentTab === 'monthly') await renderMonthlyTab();
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+// ===== Auto-save =====
+let saveTimer;
+document.addEventListener('input', (e) => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => await saveCurrentData(), 2000);
+  }
+});
+
+// ===== Init =====
+// ===== Agent Lab Logic =====
+let currentAgentMonth = new Date().getMonth();
+
+async function renderAgentTab() {
+  const data = await getYearlyData(currentYear);
+  const selector = document.getElementById('agentMonthSelector');
+  selector.innerHTML = '';
+  monthNames.forEach((name, i) => {
+    const monthKey = `monthly_${currentYear}_${i}`;
+    const hasData = data[monthKey] && Object.values(data[monthKey]).some(v => v);
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (i === currentAgentMonth ? ' active' : '') + (hasData ? ' has-data' : '');
+    btn.textContent = name;
+    btn.onclick = async () => { currentAgentMonth = i; await renderAgentTab(); };
+    selector.appendChild(btn);
+  });
+  
+  // Load settings
+  document.getElementById('ai_endpoint').value = localStorage.getItem('ai_endpoint') || 'https://api.openai.com/v1';
+  document.getElementById('ai_key').value = localStorage.getItem('ai_key') || '';
+  document.getElementById('ai_model').value = localStorage.getItem('ai_model') || 'gpt-4o';
+}
+
+function toggleSettings() {
+  const settings = document.getElementById('agentSettings');
+  const icon = document.getElementById('settingsToggleIcon');
+  if (settings.style.display === 'none') {
+    settings.style.display = 'block';
+    icon.textContent = '收起 ▲';
+  } else {
+    settings.style.display = 'none';
+    icon.textContent = '展开 ▼';
+  }
+}
+
+async function runAgent(type) {
+  const endpoint = document.getElementById('ai_endpoint').value;
+  const key = document.getElementById('ai_key').value;
+  const model = document.getElementById('ai_model').value;
+
+  if (!key) {
+    showToast('请先配置 API Key 哦~');
+    toggleSettings();
+    return;
+  }
+
+  // Save settings
+  localStorage.setItem('ai_endpoint', endpoint);
+  localStorage.setItem('ai_key', key);
+  localStorage.setItem('ai_model', model);
+
+  const resultEl = document.getElementById('agentResult');
+  const contentEl = document.getElementById('resultContent');
+  const iconEl = document.getElementById('resultIcon');
+  
+  resultEl.style.display = 'block';
+  contentEl.textContent = 'Loopy 正在思考中... ₍ᐢ.ˬ.ᐢ₎';
+  resultEl.scrollIntoView({ behavior: 'smooth' });
+
+  const data = getAllData();
+  const year = new Date().getFullYear();
+  let prompt = '';
+
+  if (type === 'loopy') {
+    iconEl.textContent = '🧠';
+    const monthKey = `monthly_${year}_${currentAgentMonth}`;
+    const monthData = data[monthKey] || {};
+    // Extract daily emotional load and weekly beliefs for the month
+    let emotionalLoad = [];
+    let coreBeliefs = [];
+    
+    // Simplistic extraction: find all daily entries for this month
+    for (const k of Object.keys(data)) {
+      if (k.startsWith(`daily_${year}-W${String(currentAgentMonth+1).padStart(2,'0')}`)) {
+        if (data[k].warn) emotionalLoad.push(data[k].warn);
+      }
+      if (k.startsWith(`weekly_${year}-W${String(currentAgentMonth+1).padStart(2,'0')}`)) {
+        if (data[k].week_belief) coreBeliefs.push(data[k].week_belief);
+      }
+    }
+
+    prompt = `你现在是 XYLAB 的首席心理分析官 Zanmang Loopy。
+任务：根据以下复盘数据生成“月度性格与能量分析报告”。
+输入数据：
+- 情绪负荷 (daily_warn): ${JSON.stringify(emotionalLoad)}
+- 核心信念 (week_belief): ${JSON.stringify(coreBeliefs)}
+- 月度总结: ${JSON.stringify(monthData)}
+
+要求：
+1. 特征提取：模仿数据预处理逻辑，从 daily_warn 提取情绪负荷，从 week_conclusion 提取核心信念。
+2. 维度分析：结合 80+ 本书的知识底蕴，从“头脑、内心、身体”三个维度评估月度能量分布。
+3. Loopy 风格报告：语气要带点 Loopy 的调皮与犀利，指出思维盲点。
+4. 增长建议：基于“理想自我”目标，给出一个下月迭代建议。`;
+
+  } else if (type === 'layout') {
+    iconEl.textContent = '📱';
+    let highlights = [];
+    for (const k of Object.keys(data)) {
+      if (data[k].star) highlights.push(data[k].star);
+      if (data[k].week_top1) highlights.push(data[k].week_top1);
+    }
+    const latestHighlight = highlights.slice(-5).join('; ');
+
+    prompt = `你是 Smart Layout Agent，负责将复盘数据转化为高美感的社交内容。
+输入数据 (最近亮点): ${latestHighlight}
+
+要求：
+1. 内容筛选：从中提取具有启发性的瞬间。
+2. 视觉分层：
+   - 小红书版：采用“情绪化标题 + 结构化 Emoji 清单 + 正能量结尾”。标题需符合 XYLAB “美感与 AI”的调性。
+   - 朋友圈版：采用留白感强的短句，配上一句关于“自我生长”的哲学反思。
+3. 排版建议：自动推荐适合配图的风格（针对这些亮点，推荐油画、摄影等风格）。`;
+
+  } else if (type === 'outfit') {
+    iconEl.textContent = '👗';
+    let correlationData = [];
+    for (const k of Object.keys(data)) {
+      if (k.startsWith('daily_') && (data[k].ootd_img || data[k].ootd_feeling)) {
+        correlationData.push({
+          feeling: data[k].ootd_feeling || '',
+          star: data[k].star || '',
+          warn: data[k].warn || '',
+          date: k
+        });
+      }
+    }
+
+    prompt = `你是 XYLAB 的 Resale Agent 进化版。你的目标是通过分析“今日穿搭”与“心理状态”的相关性，优化用户衣橱资产并提供品牌洞察。
+输入数据 (穿搭心得、成就感感、情绪波动): ${JSON.stringify(correlationData.slice(-20))}
+
+要求：
+1. 能量相关性分析：
+   - 找出那些在 "daily_star" (亮点) 出现最频繁的穿搭对应的品牌或风格关键词 (如 Lewkin, Musinsa)。
+   - 识别出“高能量单品/风格”：它们通常伴随着更高的自信与产出。
+2. 断舍离 (Resale) 建议：
+   - 如果某些穿搭描述频繁出现在 "daily_warn" (情绪波动) 较高的日子，或被关联为“低能量”，请明确建议将其列入 Poshmark/ThredUp 待售清单。
+3. 品牌灵感 (Stance Core)：
+   - 基于用户反馈最积极的剪裁、材质或风格，为用户的个人品牌 "Stance Core" 下一季“高表现力 (High Performance)”系列提供设计关键词建议。
+4. Loopy 调皮风格总结：用犀利又可爱的语气给出最终穿搭决策。`;
+  }
+
+  try {
+    const response = await fetch(`${endpoint}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7
+      })
+    });
+
+    const result = await response.json();
+    if (result.error) throw new Error(result.error.message);
+    
+    contentEl.textContent = result.choices[0].message.content;
+  } catch (err) {
+    contentEl.textContent = '出错了：' + err.message;
+  }
+}
+
+function copyResult() {
+  const content = document.getElementById('resultContent').textContent;
+  navigator.clipboard.writeText(content).then(() => {
+    showToast('内容已复制到剪贴板~');
+  });
+}
+
+
+// ===== OOTD Logic =====
+function triggerOOTDUpload() {
+  document.getElementById('ootdInput').click();
+}
+
+function handleOOTDUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Compress Image
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 800;
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      
+      // Update UI
+      document.getElementById('ootdPreview').src = compressedDataUrl;
+      document.getElementById('ootdPreviewContainer').style.display = 'block';
+      document.getElementById('ootdPlaceholder').style.display = 'none';
+      
+      showLoopyBubble();
+      saveCurrentData();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsText = function(){}; // Dummy to skip text reading
+  reader.readAsDataURL(file);
+}
+
+const loopyPhrases = [
+  "哇！今天很有 Jang Wonyoung 的氛围感哦~",
+  "这套衣服看起来能让你在 Solidcore 更有动力！",
+  "穿搭博主上线！这套简直是 OOTD 天花板~",
+  "清冷感拿捏住了，今天也是精致的 XYLAB 女孩！",
+  "这套搭配让你的能量值直接拉满！⚡",
+  "Loopy 觉得这套非常有个人风格，爱了爱了！",
+  "又是被你的审美惊艳到的一天呢~",
+  "简单却高级，这就是 Stance Core 的灵魂吗？"
+];
+
+function showLoopyBubble() {
+  const bubble = document.getElementById('loopyBubble');
+  const phrase = loopyPhrases[Math.floor(Math.random() * loopyPhrases.length)];
+  bubble.textContent = phrase;
+  bubble.classList.add('show');
+  setTimeout(() => {
+    bubble.classList.remove('show');
+  }, 4000);
+}
+
+// ===== Initialization =====
+async function initApp() {
+  await migrateLegacyData();
+  await switchTab('daily');
+}
+
+initApp();
+</script>
+</body>
+</html>
