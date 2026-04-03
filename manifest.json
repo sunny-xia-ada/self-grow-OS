@@ -4,12 +4,18 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#fff5f9",
-  "theme_color": "#f472b6",
+  "theme_color": "#FFB6C1",
   "description": "Zanmang Loopy's smart cognitive mapping and review diary.",
   "icons": [
     {
-      "src": "loopy_app_icon_1775255773227.png",
-      "sizes": "1024x1024",
+      "src": "loopy_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "loopy_icon.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
