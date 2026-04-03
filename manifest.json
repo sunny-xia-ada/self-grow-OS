@@ -3,7 +3,7 @@
   "short_name": "Loopy复盘",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#fff5f9",
+  "background_color": "#F3E8FF",
   "theme_color": "#FFB6C1",
   "description": "Zanmang Loopy's smart cognitive mapping and review diary.",
   "icons": [
@@ -11,13 +11,13 @@
       "src": "loopy_icon_crown.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     },
     {
       "src": "loopy_icon_crown.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     }
   ]
 }
