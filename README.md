@@ -3,7 +3,7 @@
 > **"Every loop is a growth, every entry is a treasure."**  
 > 一个专为高审美用户打造的、基于 PWA 的隐私优先复盘系统。
 
-![Loopy Icon](https://raw.githubusercontent.com/sunny-xia-ada/self-grow-OS/main/loopy_app_icon_1775255773227.png)
+![Loopy Icon](./loopy_icon.png)
 
 ## 🌟 核心特性 (Key Features)
 
